@@ -53,7 +53,18 @@ app.use('/api/youtubeapi', youtubeapi)
 //    // Authorize a client with the loaded credentials
 //    authorize(JSON.parse(content), cb);
 //});
+var Storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, "./videos");
+    },
+    filename: function (req, file, callback) {
+        callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+    },
+});
 
+var upload = multer({
+    storage: Storage,
+}).single("file"); //Field name and max count
 
 /** * Adding temporary index page ***/
 app.get('/', (req, res) => {
@@ -67,9 +78,9 @@ app.get('/', (req, res) => {
         res.redirect(url)
     }
     else {
-        console.log(response.data);
-        name = response.data.name;
-        pic = response.data.picture;
+        console.log(res.data);
+        name = res.data.name;
+        pic = res.data.picture;
         console.log(name)
         res.send("success")
     }
@@ -78,6 +89,54 @@ app.get('/', (req, res) => {
 
     //res.send('<h1>Youtube API Project</h1>\n<h3>Index Page<h3>')
 })
+
+app.post("/upload", (req, res) => {
+    upload(req, res, function (err) {
+        if (err) {
+            console.log(err);
+            return res.end("Something went wrong");
+        } else {
+            console.log(req.file.path);
+            title = req.body.title;
+            description = req.body.description;
+            tags = req.body.tags;
+            console.log(title);
+            console.log(description);
+            console.log(tags);
+            const youtube = google.youtube({ version: "v3", auth: oAuth2Client });
+            console.log(youtube)
+            youtube.videos.insert(
+                {
+                    resource: {
+                        // Video title and description
+                        snippet: {
+                            title: title,
+                            description: description
+                        },
+                        // I don't want to spam my subscribers
+                        status: {
+                            privacyStatus: "private",
+                        },
+                    },
+                    // This is for the callback function
+                    part: "snippet,status",
+
+                    // Create the readable stream to upload the video
+                    media: {
+                        body: fs.createReadStream(req.file.path)
+                    },
+                },
+                (err, data) => {
+                    if (err) throw err
+                    console.log(data)
+                    console.log("Done.");
+                    fs.unlinkSync(req.file.path);
+                    res.render("success", { name: name, pic: pic, success: true });
+                }
+            );
+        }
+    });
+});
 
 app.get("/google/callback", function (req, res) {
     const code = req.query.code;
