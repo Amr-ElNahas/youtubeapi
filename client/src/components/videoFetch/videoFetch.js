@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './videoFetch.css';
 
-const API = 'AIzaSyCKfKdKm2AHE0r2sOdtd85GNY-L7izOL84'
+const API = 
 const channelID = 'UClGOz_V3eHcaleqSP26kU1Q'
 const result = 10
 
