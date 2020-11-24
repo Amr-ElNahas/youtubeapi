@@ -1,6 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
 import Youtubeapi from './components/youtubeapi/youtubeapi';
+import VideoFetch from './components/videoFetch/videoFetch';
+
+const dotenv = require('dotenv')
+dotenv.config()
 
 function App() {
   return (
@@ -20,6 +24,7 @@ function App() {
         </a>
           </header>
           <Youtubeapi />
+          <VideoFetch />
     </div>
   );
 }

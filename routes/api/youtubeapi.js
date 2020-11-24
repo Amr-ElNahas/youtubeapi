@@ -9,6 +9,19 @@ const OAuth2Data = require('../../client_secret');
 const multer = require("multer")
 
 
+router.use(function (req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
+	next();
+});
+
+router.use(function (req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Methods", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
+	next();
+});
 
 const CLIENT_ID = OAuth2Data.web.client_id;
 const CLIENT_SECRET = OAuth2Data.web.client_secret;
@@ -136,6 +149,7 @@ router.get("/google/callback", function (req, res) {
 				oAuth2Client.setCredentials(tokens);
 
 				authed = true;
+
 				res.redirect("/api/youtubeapi");
 			}
 		});

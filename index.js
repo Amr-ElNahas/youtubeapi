@@ -4,6 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const port = process.env.PORT || 3001
 const app = express()
+var cors = require('cors')
 
 const youtubeapi = require('./routes/api/youtubeapi')
 
@@ -13,14 +14,16 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 
 
+//IMPORTANT!!!! DO NOT REMOVE
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
+    console.log(res.header)
     next();
 });
-
+app.use(cors())
 //const authorize = require('./routes/api/authorize')
 
 app.use('/api/youtubeapi', youtubeapi)
