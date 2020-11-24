@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './videoFetch.css';
 
-const API = 'AIzaSyB0Y4pT3dRmbeJlurnK72BPGk8Xro8Uv2o'
+const API = 'AIzaSyCKfKdKm2AHE0r2sOdtd85GNY-L7izOL84'
 const channelID = 'UClGOz_V3eHcaleqSP26kU1Q'
 const result = 10
 
@@ -21,7 +21,7 @@ class VideoFetch extends Component {
         //fetch(finalURL).then(res => res.json())
         //    .then(data => this.setState(data, () => console.log(this.state.data)))
         fetch(finalURL).then(res => res.json()).then((resp) => {
-            //console.log(resp)
+            console.log(resp)
             const data = resp.items.map(obj => "https://www.youtube.com/embed/"+obj.id.videoId)
             this.setState({ data })
         })

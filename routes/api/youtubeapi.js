@@ -7,21 +7,8 @@ const { google } = require('googleapis');
 const readline = require('readline');
 const OAuth2Data = require('../../client_secret');
 const multer = require("multer")
+const open = require("open")
 
-
-router.use(function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "*");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
-	next();
-});
-
-router.use(function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Methods", "*");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
-	next();
-});
 
 const CLIENT_ID = OAuth2Data.web.client_id;
 const CLIENT_SECRET = OAuth2Data.web.client_secret;
@@ -43,10 +30,10 @@ const SCOPES = [
 
 var Storage = multer.diskStorage({
 	destination: function (req, file, callback) {
-		callback(null, "./videos");
+		callback(null, "./uploads");
 	},
 	filename: function (req, file, callback) {
-		callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+		callback(null, file.fieldname + "_" + file.originalname);
 	},
 });
 var upload = multer({
@@ -85,52 +72,68 @@ router.get('/', (req, res) => {
 	}
 });
 
-router.post("/upload", (req, res) => {
-	upload(req, res, function (err) {
-		if (err) {
-			console.log(err);
-			return res.end("Something went wrong");
-		} else {
-			console.log(req.file.path);
-			title = req.body.title;
-			description = req.body.description;
-			tags = req.body.tags;
-			console.log(title);
-			console.log(description);
-			console.log(tags);
-			const youtube = google.youtube({ version: "v3", auth: oAuth2Client });
-			console.log(youtube)
-			youtube.videos.insert(
-                {
-                	resource: {
-                		// Video title and description
-                		snippet: {
-                			title: title,
-                			description: description
-                		},
-                		// I don't want to spam my subscribers
-                		status: {
-                			privacyStatus: "private",
-                		},
-                	},
-                	// This is for the callback function
-                	part: "snippet,status",
+//router.post("/upload", (req, res) => {
+//	upload(req, res, function (err) {
+//		if (err) {
+//			console.log(err);
+//			return res.end("Something went wrong");
+//		} else {
+//			console.log(req.file.path);
+//			title = req.body.title;
+//			description = req.body.description;
+//			tags = req.body.tags;
+//			console.log(title);
+//			console.log(description);
+//			console.log(tags);
+//			const youtube = google.youtube({ version: "v3", auth: oAuth2Client });
+//			console.log(youtube)
+			//youtube.videos.insert(
+            //    {
+            //    	resource: {
+            //    		// Video title and description
+            //    		snippet: {
+            //    			title: title,
+            //    			description: description
+            //    		},
+            //    		// I don't want to spam my subscribers
+            //    		status: {
+            //    			privacyStatus: "private",
+            //    		},
+            //    	},
+            //    	// This is for the callback function
+            //    	part: "snippet,status",
 
-                	// Create the readable stream to upload the video
-                	media: {
-                		body: fs.createReadStream(req.file.path)
-                	},
-                },
-                (err, data) => {
-                	if (err) throw err
-                	console.log(data)
-                	console.log("Done.");
-                	fs.unlinkSync(req.file.path);
-                	res.render("success", { name: name, pic: pic, success: true });
-                }
-            );
-		}
-	});
+            //    	// Create the readable stream to upload the video
+            //    	media: {
+            //    		body: fs.createReadStream(req.file.path)
+            //    	},
+            //    },
+            //    (err, data) => {
+            //    	if (err) throw err
+            //    	console.log(data)
+            //    	console.log("Done.");
+            //    	fs.unlinkSync(req.file.path);
+            //    	res.render("success", { name: name, pic: pic, success: true });
+            //    }
+            //);
+//		}
+//	});
+//});
+router.post("/upload",upload, (req, res) => {
+
+	if(req.file){
+		const filename=req.file.fieldname + "_" + req.file.originalname
+		console.log(filename)
+
+		const {title, description} = req.body;
+		open(oAuth2Client.generateAuthUrl({
+			access_type: "offline",
+			scope: SCOPES,
+			state:JSON.stringify({
+				filename,title,description
+			})
+		}))
+	}
 });
 
 router.get("/google/callback", function (req, res) {
@@ -149,8 +152,38 @@ router.get("/google/callback", function (req, res) {
 				oAuth2Client.setCredentials(tokens);
 
 				authed = true;
+				const {filename,title,description}=JSON.parse(req.query.state)
+				res.redirect("http://localhost:3000/success");
 
-				res.redirect("/api/youtubeapi");
+				const youtube = google.youtube({ version: "v3", auth: oAuth2Client });
+				youtube.videos.insert(
+                {
+                	resource: {
+                		// Video title and description
+                		snippet: {
+                			title: title,
+                			description: description
+                		},
+                		// I don't want to spam my subscribers
+                		status: {
+                			privacyStatus: "private",
+                		},
+                	},
+                	// This is for the callback function
+                	part: "snippet,status",
+
+                	// Create the readable stream to upload the video
+                	media: {
+                		body: fs.createReadStream("./uploads"+'/'+filename)
+                	},
+                },
+                (err, data) => {
+                	if (err) throw err
+                	console.log(data)
+                	console.log("Done.");
+                	process.exit()
+                }
+            );
 			}
 		});
 	}

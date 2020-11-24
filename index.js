@@ -16,13 +16,13 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 //IMPORTANT!!!! DO NOT REMOVE
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
-    console.log(res.header)
-    next();
-});
+//app.use(function (req, res, next) {
+//    res.header("Access-Control-Allow-Origin", "*");
+//    res.header("Access-Control-Allow-Methods", "*");
+//    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,  Authorization");
+//    console.log(res.header)
+//    next();
+//});
 app.use(cors())
 //const authorize = require('./routes/api/authorize')
 
