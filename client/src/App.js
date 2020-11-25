@@ -4,6 +4,7 @@ import './App.css';
 import Youtubeapi from './components/youtubeapi/youtubeapi';
 import VideoFetch from './components/videoFetch/videoFetch';
 import Success from './components/success/success';
+import youtubeSearch from './components/youtubeSearch/youtubeSearch';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 
 
@@ -22,11 +23,15 @@ class App extends Component {
                             <li>
                                 <Link to="/upload">upload</Link>
                             </li>
+                            <li>
+                                <Link to="/search">search</Link>
+                            </li>
                         </ul>
 
                             <Route path="/viewvideos" component={VideoFetch} />
                             <Route path="/upload" component={Youtubeapi} />
-                            <Route path="/success" component={Success} />
+                        <Route path="/success" component={Success} />
+                        <Route path="/search" component={youtubeSearch} />
                         
                 
                     </Router>

@@ -7,6 +7,7 @@ const app = express()
 var cors = require('cors')
 
 const youtubeapi = require('./routes/api/youtubeapi')
+//const youtubesearch = require('./routes/api/youtubesearch')
 
 
 app.use(express.json())
@@ -27,6 +28,7 @@ app.use(cors())
 //const authorize = require('./routes/api/authorize')
 
 app.use('/api/youtubeapi', youtubeapi)
+//app.use('/api/youtubesearch', youtubesearch)
 
 
 /** * Adding temporary index page ***/
